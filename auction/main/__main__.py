@@ -87,7 +87,7 @@ def validate_input_and_store_bids(input,valid_sites,sorted_bidder_list):
                                         log.message('Bidder response for ' + raw_bid['unit'] + ': ' + str(raw_bid['bid']) + ' from ' + raw_bid['bidder'] + ' (bid adjustment of ' + str(raw_bid['adjustment_factor']) + ')' )
                         else:
                             if DEBUG:
-                                log.warning('Ad Unit ' + b['unit'] + ' not found. Ignoring response as invalid.')
+                                log.warning('Ad Unit ' + raw_bid['unit'] + ' not found. Ignoring response as invalid.')
 
 def hold_auctions(all_possible_auctions):
     auction_output = []
