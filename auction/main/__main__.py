@@ -24,22 +24,6 @@ def load_input_library():
         log.error('Input data is not type JSON. Exiting.')
         sys.exit(1)
 
-def return_valid_sites(config):
-    sitelist = []
-    for site in config['sites']:
-        s = settings.Site(site['name'],site['bidders'],site['floor'])
-        sitelist.append(s)
-        log.message('Loaded config for ' + s.domain + '. Site floor = ' + str(site['floor']))
-    return sitelist
-
-def return_valid_bidders(config):
-    bidderlist = []
-    for bidder in config['bidders']:
-        b = settings.Bidder(bidder['name'],bidder['adjustment'])
-        bidderlist.append(b)
-        log.message('Loaded bidder settings for ' + b.name)
-    return bidderlist
-
 def find(list, key, value):
     for i, d in enumerate(list):
         if d[key] == value:
@@ -48,7 +32,7 @@ def find(list, key, value):
 
 def validate_input_and_store_bids(input,valid_sites,sorted_bidder_list):
     for i in input:
-        for site in valid_sites:
+        for site in valid_sites.collection:
             if i['site'] == site.domain:
                 for u in i['units']:
                     site.set_ad_unit(u)
@@ -59,21 +43,12 @@ def validate_input_and_store_bids(input,valid_sites,sorted_bidder_list):
                 bid_count = 0
                 for raw_bid in sorted_raw_bids:
                     bid_count += 1
-                    bidder_index = find(sorted_bidder_list,'name',raw_bid['bidder'])
+                    bidder_index = find(sorted_bidder_list.collection,'name',raw_bid['bidder'])
                     if bidder_index == -1:
                         log.warning('Bidder ' + raw_bid['bidder'] + ' not found for site ' + site.domain + '. Ignoring response as invalid.')
                         break
                     else:
-                        if bidder_index > 0:
-                            if log.DEBUG:
-                                j = 0
-                                if bid_count != 1:
-                                    j = 1
-                                while j < bidder_index:
-                                    log.warning('Bidder ' + sorted_bidder_list[j].name + ' had no bids for site ' + site.domain + '.')
-                                    j += 1
-                            del sorted_bidder_list[0:bidder_index-1]
-                        raw_bid['adjustment_factor'] = sorted_bidder_list[0].adjustment
+                        raw_bid['adjustment_factor'] = sorted_bidder_list.collection[0].adjustment
 
                         if raw_bid['unit'] in i['units']:
                             for ad_unit in site.ad_units:
@@ -85,13 +60,13 @@ def validate_input_and_store_bids(input,valid_sites,sorted_bidder_list):
 
 def hold_auctions(all_possible_auctions):
     auction_output = []
-    for site in all_possible_auctions:
+    for site in all_possible_auctions.collection:
         for ad in site.ad_units:
             log.message('Holding auction for ' + ad.name + ' in ' + site.domain)
             ad.auction_manager.get_top_bid()
         site.get_winning_bids_above_site_floor()
         log.announcement('Auction is complete!')
-        auction_output.append(site.won_bids)
+        auction_output.append(site.winning_bids)
     return auction_output
 
 
@@ -108,12 +83,16 @@ if (__name__ == '__main__'):
     input = load_input_library()
 
     # Create known list of sites, bidders
-    known_site_entities = return_valid_sites(config)
-    known_bidders = return_valid_bidders(config)
-    known_bidders_sorted = sorted(known_bidders, key=lambda k: k['name'])
+    known_site_entities = settings.Entity()
+    known_site_entities.get_valid_entities(config['sites'],['name','bidders','floor'],settings.Site)
+
+    known_bidders = settings.Entity()
+    known_bidders.get_valid_entities(config['bidders'],['name','adjustment'],settings.Bidder)
+
+    known_bidders.sort_collection('name')
 
     # Filter input against known sites, bidders and ad units
-    validate_input_and_store_bids(input,known_site_entities,known_bidders_sorted)
+    validate_input_and_store_bids(input,known_site_entities,known_bidders)
 
     # Hold the auction and get winners
     auction_output = hold_auctions(known_site_entities)
