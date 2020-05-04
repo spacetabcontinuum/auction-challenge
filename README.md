@@ -14,4 +14,4 @@ In Dockerfile, add the flag '--debug' to CMD enter debug mode. This will expose 
 CMD ["python","-m","auction.main","--debug"]
 ````
 
-![alt text](https://github.com/spacetabcontinuum/auction-challenge/debug_mode_screenshot.png")
+![debug screenshot](/debug_mode_screenshot.png?raw=true)
