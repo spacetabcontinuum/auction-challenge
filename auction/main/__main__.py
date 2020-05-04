@@ -5,7 +5,7 @@ import response
 import auction_dynamics
 import adunit
 
-from format import PrintLog as log
+from format import LogSettings
 
 def load_config_library(config_file):
     try:
@@ -28,18 +28,16 @@ def return_valid_sites(config):
     sitelist = []
     for site in config['sites']:
         s = settings.Site(site['name'],site['bidders'],site['floor'])
-        if DEBUG:
-            log.message('Loaded config for ' + s.domain + '. Site floor = ' + str(site['floor']))
         sitelist.append(s)
+        log.message('Loaded config for ' + s.domain + '. Site floor = ' + str(site['floor']))
     return sitelist
 
 def return_valid_bidders(config):
     bidderlist = []
     for bidder in config['bidders']:
         b = settings.Bidder(bidder['name'],bidder['adjustment'])
-        if DEBUG:
-            log.message('Loaded bidder settings for ' + b.name)
         bidderlist.append(b)
+        log.message('Loaded bidder settings for ' + b.name)
     return bidderlist
 
 def find(list, key, value):
@@ -54,8 +52,7 @@ def validate_input_and_store_bids(input,valid_sites,sorted_bidder_list):
             if i['site'] == site.domain:
                 for u in i['units']:
                     site.set_ad_unit(u)
-                    if DEBUG:
-                        log.message('Loaded ad unit ' + u + ' for ' + site.domain )
+                    log.message('Loaded ad unit ' + u + ' for ' + site.domain )
 
                 sorted_raw_bids = sorted(i['bids'], key=lambda k: (k['bidder'], k['unit']))
 
@@ -64,12 +61,11 @@ def validate_input_and_store_bids(input,valid_sites,sorted_bidder_list):
                     bid_count += 1
                     bidder_index = find(sorted_bidder_list,'name',raw_bid['bidder'])
                     if bidder_index == -1:
-                        if DEBUG:
-                            log.warning('Bidder ' + raw_bid['bidder'] + ' not found for site ' + site.domain + '. Ignoring response as invalid.')
+                        log.warning('Bidder ' + raw_bid['bidder'] + ' not found for site ' + site.domain + '. Ignoring response as invalid.')
                         break
                     else:
                         if bidder_index > 0:
-                            if DEBUG:
+                            if log.DEBUG:
                                 j = 0
                                 if bid_count != 1:
                                     j = 1
@@ -83,18 +79,15 @@ def validate_input_and_store_bids(input,valid_sites,sorted_bidder_list):
                             for ad_unit in site.ad_units:
                                 if ad_unit.name == raw_bid['unit']:
                                     ad_unit.auction_manager.store_valid_bid(raw_bid['bidder'],raw_bid['bid'],raw_bid['adjustment_factor'])
-                                    if DEBUG:
-                                        log.message('Bidder response for ' + raw_bid['unit'] + ': ' + str(raw_bid['bid']) + ' from ' + raw_bid['bidder'] + ' (bid adjustment of ' + str(raw_bid['adjustment_factor']) + ')' )
+                                    log.message('Bidder response for ' + raw_bid['unit'] + ': ' + str(raw_bid['bid']) + ' from ' + raw_bid['bidder'] + ' (bid adjustment of ' + str(raw_bid['adjustment_factor']) + ')' )
                         else:
-                            if DEBUG:
-                                log.warning('Ad Unit ' + raw_bid['unit'] + ' not found. Ignoring response as invalid.')
+                            log.warning('Ad Unit ' + raw_bid['unit'] + ' not found. Ignoring response as invalid.')
 
 def hold_auctions(all_possible_auctions):
     auction_output = []
     for site in all_possible_auctions:
         for ad in site.ad_units:
-            if DEBUG:
-                log.message('Holding auction for ' + ad.name + ' in ' + site.domain)
+            log.message('Holding auction for ' + ad.name + ' in ' + site.domain)
             ad.auction_manager.get_top_bid()
         site.get_winning_bids_above_site_floor()
         log.announcement('Auction is complete!')
@@ -105,13 +98,10 @@ def hold_auctions(all_possible_auctions):
 if (__name__ == '__main__'):
     import sys
 
-    if '--debug' in sys.argv:
-        DEBUG = True
-    else:
-        DEBUG = False
+    log = LogSettings()
+    log.debug_enabled()
 
     current_directory = os.getcwd()
-
 
     # Load json libraries
     config = load_config_library(current_directory+'auction/config.json')

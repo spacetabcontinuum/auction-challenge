@@ -1,5 +1,9 @@
 import adunit
-from format import PrintLog as log
+from format import LogSettings
+
+log = LogSettings()
+log.debug_enabled()
+
 
 class Site:
     def __init__(self,domain,bidders,floor):
@@ -15,18 +19,18 @@ class Site:
     def set_ad_unit(self,name):
         self.ad_units.append(adunit.AdUnit(name))
     def get_winning_bids_above_site_floor(self):
-        for a in self.ad_units:
-            top_bid = a.return_winner()
+        for ad in self.ad_units:
+            top_bid = ad.return_winner()
             if top_bid.adjusted_bid >= self.floor:
                 auction_winner = {
                 'bidder': top_bid.bidder,
                 'bid': top_bid.bid_value,
-                'unit': a.name
+                'unit': ad.name
                 }
                 self.won_bids.append(auction_winner)
             else:
                 self.won_bids.append([])
-                log.warning('Adjusted bid (' + str(top_bid.adjusted_bid) + ') is not above the' + self.domain + ' site floor of ' + str(self.floor) + '. No winner for ad unit ' + a.name)
+                log.warning('Adjusted bid (' + str(top_bid.adjusted_bid) + ') is not above the' + self.domain + ' site floor of ' + str(self.floor) + '. No winner for ad unit ' + ad.name)
 
 class Bidder:
     def __init__(self,name,adjustment):
