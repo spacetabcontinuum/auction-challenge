@@ -66,7 +66,7 @@ if (__name__ == '__main__'):
     response.BidBouncer.filter_bid_responses(input,known_site_entities)
 
     # Hold the auction and get winners
-    auction_output = hold_auctions(known_site_entities)
+    auction_output = auction_dynamics.hold_the_auction(known_site_entities.collection,known_bidders)
 
     # Print auction output
     print(auction_output)

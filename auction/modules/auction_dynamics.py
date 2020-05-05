@@ -1,6 +1,9 @@
 import response
 from format import LogSettings
 
+log = LogSettings()
+log.debug_enabled()
+
 class AuctionManager:
     def __init__(self):
         self.bids = []
@@ -18,18 +21,29 @@ class AuctionManager:
                 top_adjusted_bid_value = b.adjusted_bid
                 top_bid = b
         self.top_bid = top_bid
+        log.message('Top bid is: ' + str(self.top_bid))
     def store_valid_bid(self,bidder,bid_value):
         self.bids.append(response.Bid(bidder,bid_value))
+    def calculate_adjusted_bid(self,bidder_settings):
+        bidderlist = bidder_settings.get_list_of_all('name')
+        for b in self.bids:
+            try:
+                bidder_index = bidderlist.index(b['bidder'])
+                b.adjustment_factor = bidder_settings.collection[bidder_index]['adjustment']
+                b.adjusted_bid = b.bid_value * (1.0000 + b.adjustment_factor)
+                log.message('Adjusted bid of ' + str(b.bid_value) + ' from ' + b.bidder + ' by ' + str(b.adjustment_factor*100) + '%. Competed in auction as ' + str(b.adjusted_bid))
+            except:
+                log.message('Could not find bidder adjustment value for ' + b['bidder'] + '. Assuming no adjustment factor necessary (adjusted bid = orignal bid).')
 
-
-def hold_auctions(all_possible_auctions):
+def hold_the_auction(site_settings,bidder_settings):
     auction_output = []
-    for site in all_possible_auctions:
+    for site in site_settings:
         for ad in site.ad_units:
-            if DEBUG:
-                log.message('Holding auction for ' + ad.name + ' in ' + site.domain)
+            log.message('Holding auction for ' + ad.name + ' in ' + site.domain)
+            ad.auction_manager.calculate_adjusted_bid(bidder_settings)
             ad.auction_manager.get_top_bid()
         site.get_winning_bids_above_site_floor()
-        log.announcement('We have winners! - ' + str(site.won_bids))
-        auction_output.append(site.won_bids)
+        auction_output.append(site.winning_bids)
+        log.message('We have winners for site ' + site.domain + ': ' + str(site.winning_bids))
+    log.announcement('Auction is complete!')
     return auction_output
