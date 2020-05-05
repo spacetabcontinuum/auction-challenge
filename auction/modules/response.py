@@ -18,7 +18,7 @@ class BidBouncer:
                     if bid['bidder'] in valid_bidders:
                         try:
                             ad_unit_index = valid_ad_units.index(bid['unit'])
-                            valid_sites.collection[site_index].ad_units[ad_unit_index].auction_manager.store_valid_bid(bid['bidder'],bid['bid'])
+                            valid_sites.collection[site_index].ad_units[ad_unit_index].auction_manager.store_bid(bid['bidder'],bid['bid'])
                         except:
                             log.warning('Ad Unit ' + bid['unit'] + ' not found for site ' + valid_sites.collection[site_index].domain + ' Ignoring response as invalid.')
                     else:

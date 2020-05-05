@@ -20,7 +20,7 @@ class AuctionManager:
                 top_bid = b
         self.top_bid = top_bid
         log.message('Top bid is: ' + str(self.top_bid))
-    def store_valid_bid(self,bidder,bid_value):
+    def store_bid(self,bidder,bid_value):
         self.bids.append(response.Bid(bidder,bid_value))
     def calculate_adjusted_bid(self,bidder_settings):
         bidderlist = bidder_settings.get_list_of_all('name')
