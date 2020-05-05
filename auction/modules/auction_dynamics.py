@@ -10,10 +10,12 @@ class AuctionManager:
         self.top_bid = {}
     def get_top_bid(self):
         top_adjusted_bid_value = 0
-        top_bid = []
+        top_bid = {}
         participating_bids = self.bids
         for b in participating_bids:
-            if b.adjusted_bid > top_adjusted_bid_value:
+            if b.adjusted_bid == top_adjusted_bid_value:
+                log.message('Bid from ' + b.bidder + ' for ' + str(b.adjusted_bid) + ' matches a previous bid from ' + top_bid.bidder + '. Ignoring the late bid.')
+            elif b.adjusted_bid > top_adjusted_bid_value:
                 top_adjusted_bid_value = b.adjusted_bid
                 top_bid = b
         self.top_bid = top_bid

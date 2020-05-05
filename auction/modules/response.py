@@ -34,3 +34,5 @@ class Bid:
         self.adjusted_bid = bid_value
     def __getitem__(self,key):
         return getattr(self,key)
+    def __str__(self):
+        return str(self.__dict__)
