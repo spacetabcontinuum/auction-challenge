@@ -1,5 +1,5 @@
 import response
-from format import PrintLog as log
+from format import LogSettings
 
 class AuctionManager:
     def __init__(self):
@@ -18,8 +18,8 @@ class AuctionManager:
                 top_adjusted_bid_value = b.adjusted_bid
                 top_bid = b
         self.top_bid = top_bid
-    def store_valid_bid(self,bidder,bid_value,adjustment_factor):
-        self.bids.append(response.Bid(bidder,bid_value,adjustment_factor))
+    def store_valid_bid(self,bidder,bid_value):
+        self.bids.append(response.Bid(bidder,bid_value))
 
 
 def hold_auctions(all_possible_auctions):
