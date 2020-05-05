@@ -8,14 +8,10 @@ class AuctionManager:
     def __init__(self):
         self.bids = []
         self.top_bid = {}
-    def __str__(self):
-        return str(self.__class__) + ': ' + str(self.__dict__)
-    def get_bids(self):
-        return self.bids
     def get_top_bid(self):
         top_adjusted_bid_value = 0
         top_bid = []
-        participating_bids = self.get_bids()
+        participating_bids = self.bids
         for b in participating_bids:
             if b.adjusted_bid > top_adjusted_bid_value:
                 top_adjusted_bid_value = b.adjusted_bid

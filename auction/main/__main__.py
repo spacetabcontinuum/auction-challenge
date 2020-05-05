@@ -1,10 +1,10 @@
+import sys
 import json
 import os
 import settings
 import response
 import auction_dynamics
 import adunit
-
 from format import LogSettings
 
 def load_config_library(config_file):
@@ -24,29 +24,7 @@ def load_input_library():
         log.error('Input data is not type JSON. Exiting.')
         sys.exit(1)
 
-def find(list, key, value):
-    for i, d in enumerate(list):
-        if d[key] == value:
-            return i
-    return -1
-
-def hold_auctions(all_possible_auctions):
-    auction_output = []
-    for site in all_possible_auctions.collection:
-        for ad in site.ad_units:
-            log.message('Holding auction for ' + ad.name + ' in ' + site.domain)
-            ad.auction_manager.get_top_bid()
-        site.get_winning_bids_above_site_floor()
-        log.announcement('Auction is complete!')
-        auction_output.append(site.winning_bids)
-    return auction_output
-
-
 if (__name__ == '__main__'):
-    import sys
-
-    log = LogSettings()
-    log.debug_enabled()
 
     current_directory = os.getcwd()
 
