@@ -8,22 +8,17 @@ class AuctionManager:
     def __init__(self):
         self.bids = []
         self.top_bid = {}
-    def get_top_bid(self):
-        top_adjusted_bid_value = 0
-        top_bid = {}
-        participating_bids = self.bids
-        for b in participating_bids:
-            if b.adjusted_bid == top_adjusted_bid_value:
-                log.message('Bid from ' + b.bidder + ' for ' + str(b.adjusted_bid) + ' matches a previous bid from ' + top_bid.bidder + '. Ignoring the late bid.')
-            elif b.adjusted_bid > top_adjusted_bid_value:
-                top_adjusted_bid_value = b.adjusted_bid
-                top_bid = b
-        self.top_bid = top_bid
-        log.message('Top bid is: ' + str(self.top_bid))
+        self.hold_auction = False
     def store_bid(self,bidder,bid_value):
         self.bids.append(response.Bid(bidder,bid_value))
+        self.hold_auction = True
     def calculate_adjusted_bid(self,bidder_settings):
+        if not self.hold_auction:
+            return
         bidderlist = bidder_settings.get_list_of_all('name')
+        if len(bidderlist) == 0:
+            log.message('No bidder adjustments required.')
+            return
         for b in self.bids:
             try:
                 bidder_index = bidderlist.index(b['bidder'])
@@ -32,6 +27,21 @@ class AuctionManager:
                 log.message('Adjusted bid of ' + str(b.bid_value) + ' from ' + b.bidder + ' by ' + str(b.adjustment_factor*100) + '%. Competed in auction as ' + str(b.adjusted_bid))
             except:
                 log.message('Could not find bidder adjustment value for ' + b['bidder'] + '. Assuming no adjustment factor necessary (adjusted bid = orignal bid).')
+    def get_top_bid(self):
+        if not self.hold_auction:
+            log.message('No participating bids.')
+            return
+        participating_bids = self.bids
+        top_adjusted_bid_value = 0
+        top_bid = {}
+        for b in participating_bids:
+            if b.adjusted_bid == top_adjusted_bid_value:
+                log.message('Bid from ' + b.bidder + ' for ' + str(b.adjusted_bid) + ' matches a previous bid from ' + top_bid.bidder + '. Ignoring the late bid.')
+            elif b.adjusted_bid >= top_adjusted_bid_value:
+                top_adjusted_bid_value = b.adjusted_bid
+                top_bid = b
+        self.top_bid = top_bid
+        log.message('Top bid is: ' + str(self.top_bid))
 
 def hold_the_auction(site_settings,bidder_settings):
     auction_output = []
