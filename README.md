@@ -4,7 +4,7 @@
 
 Hello! This repo contains my submission to the Sortable auction-challenge. This program handles two sources of input (config.json and input.json) and prints the results of the auction to the terminal. I have included a debug mode, as well as unit tests for the main auction compontents.
 
-This is an object-oriented Python program. Incomming data is handled by the Reponse class and if valid, stored in instances of the main 6 main classes: Entity, Site, Ad Unit, AuctionManager, Bid and Bidder. These classes are nested (or related to one another) as outlined in the diagram below, with the AuctionManager handling the majority of the auction logic.
+This is an object-oriented Python program. Incomming data is handled by the Response class and if valid, stored in instances of the main 6 main classes: Entity, Site, AdUnit, AuctionManager, Bid and Bidder. These classes are nested (or related to one another) as outlined in the diagram below, with the AuctionManager handling the majority of the auction logic.
 
 ![class_structure](/images/class_structure.png?raw=true)
 
