@@ -33,6 +33,10 @@ class Site:
         self.ad_units.append(adunit.AdUnit(name))
     def get_winning_bids_above_site_floor(self):
         for ad in self.ad_units:
+            if not ad.auction_manager.top_bid:
+                self.winning_bids.append([])
+                log.warning('No top bid found.')
+                return
             top_bid = ad.auction_manager.top_bid
             if top_bid.adjusted_bid >= self.floor:
                 auction_winner = {

@@ -29,7 +29,7 @@ class AuctionManager:
                 log.message('Could not find bidder adjustment value for ' + b['bidder'] + '. Assuming no adjustment factor necessary (adjusted bid = orignal bid).')
     def get_top_bid(self):
         if not self.hold_auction:
-            log.message('No participating bids.')
+            log.warning('No participating bids.')
             return
         participating_bids = self.bids
         top_adjusted_bid_value = 0
