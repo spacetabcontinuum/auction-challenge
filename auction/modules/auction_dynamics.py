@@ -1,3 +1,4 @@
+import json
 import response
 from format import LogSettings
 
@@ -54,4 +55,5 @@ def hold_the_auction(site_settings,bidder_settings):
         auction_output.append(site.winning_bids)
         log.message('We have winners for site ' + site.domain + ': ' + str(site.winning_bids))
     log.announcement('Auction is complete!')
-    return auction_output
+    auction_output_json = json.dumps(auction_output)
+    return auction_output_json
